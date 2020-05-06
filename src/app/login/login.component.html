@@ -1,0 +1,32 @@
+<div class = "card" style="
+width: 38em;
+margin-top: 115px;
+margin-left: 298px">
+    <div class="card text-center">
+    <div class ="card header">LOGIN</div>
+    <div class="card-body">
+        <form [formGroup] = 'loginForm' method="POST" (ngSubmit)="onLoginButtonClicked()">  
+            <div class = "form-group row">
+              <label id = "label" for="Email">Email</label>
+              <div class="col-xl-10" style="margin-left: 30px;">
+              <input [class.is-invalid] = "email.invalid && email.touched" type="email" pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" id = "email" class = "form-control"  formControlName = "email" required>
+              <div *ngIf="(email.invalid && email.touched) || email.dirty">
+                <small *ngIf="email.errors?.required" class="text-danger">Email  is required</small>
+                <small *ngIf="email.errors?.pattern" class="text-danger">Please provide a valid email address</small>
+              </div>
+              </div>
+            </div>
+                <div class = "form-group row">
+                  <label id = "label" for="Password">Password</label>
+                  <div class="col-xl-10">           
+                  <input type="password" id = "password" class = "form-control" formControlName = "password" required>
+                  </div> 
+                  </div>
+                  <div style="margin-top: 30px;">                
+                    <button type="submit" class="btn btn-primary" >SUBMIT</button>
+                  </div>
+                  </form>
+    </div>    
+    </div>
+
+</div>

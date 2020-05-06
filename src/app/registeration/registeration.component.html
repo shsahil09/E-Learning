@@ -1,0 +1,50 @@
+<div class = "card" style="
+width: 38em;
+margin-top: 115px;
+margin-left: 298px">
+    <div class="card text-center">
+    <div class ="card header">REGISTERATION</div>
+    <div class="card-body">
+        <form [formGroup] = 'registerationForm' method="POST" (ngSubmit)="onRegisterButtonClicked()">
+            <div class = "form-group row">
+            <label id = "label" for="Name">Name</label>
+            <div class="col-xl-10"style="margin-left: 25px;">
+            <input type="text"  id = "username" class = "form-control" formControlName = "username" required>
+        </div>    
+        </div>  
+            <div class = "form-group row">
+              <label id = "label" for="Email">Email</label>
+              <div class="col-xl-10" style="margin-left: 30px;">
+              <input [class.is-invalid] = "email.invalid && email.touched" type="email" pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" id = "email" class = "form-control"  formControlName = "email" required>
+              <div *ngIf="(email.invalid && email.touched) || email.dirty">
+                <small *ngIf="email.errors?.required" class="text-danger">Email  is required</small>
+                <small *ngIf="email.errors?.pattern" class="text-danger">Please provide a valid email address</small>
+              </div>
+              <div *ngIf ="alreadyExist"> 
+                <small *ngIf="alreadyExist" class="text-danger" > Email alreadyExist </small>
+              </div>
+              </div>
+            </div>
+                <div class = "form-group row">
+                  <label id = "label" for="Password">Password</label>
+                  <div class="col-xl-10">           
+                  <input type="password" id = "password" class = "form-control" formControlName = "password" required>
+                  </div> 
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                    <label class="form-check-label" for="teacher">As a Teacher</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                    <label class="form-check-label" for="student">As a Student</label>
+                  </div>
+                  <div style="margin-top: 30px;">                
+                    <button type="submit" class="btn btn-primary" >SUBMIT</button>
+                  </div>
+
+                  </form>
+    </div>    
+    </div>
+
+</div>
