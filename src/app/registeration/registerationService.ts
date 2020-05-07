@@ -8,11 +8,12 @@ export class RegisterationService {
     private userUrl: string;
     public isUserLogin = false;
     constructor(private http: HttpClient) {
+        this.userUrl = 'http://localhost:8080/register';
     }
 
-    public insertUser(userData: RegisterationModel): Observable<RegisterationModel> {
+    public insertUser(userData: RegisterationModel): Observable<RegisterationModel[]> {
         // tslint:disable-next-line:max-line-length
-        return this.http.post<RegisterationModel> (this.userUrl , {'email': userData.getEmail() ,
+        return this.http.post<RegisterationModel[]> (this.userUrl , {'email': userData.getEmail() ,
                                                                     'username': userData.getUserName() ,
                                                                     'password' : userData.getPassword()});
     }

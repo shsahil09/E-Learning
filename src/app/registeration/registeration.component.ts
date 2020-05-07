@@ -3,6 +3,8 @@ import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms'
 import { RegisterationService } from './registerationService';
 import { Router } from '@angular/router';
 import { RegisterationModel } from './registerationModel';
+import { NgxSpinner } from 'ngx-spinner/lib/ngx-spinner.enum';
+import { NgxSpinnerService } from 'ngx-spinner';
 
 @Component({
   selector: 'app-registeration',
@@ -21,7 +23,7 @@ export class RegisterationComponent implements OnInit {
     return this.registerationForm.get('email');
   }
   // tslint:disable-next-line:max-line-length
-  constructor(private router: Router ,  private formBuilder: FormBuilder , private service: RegisterationService) {
+  constructor(private router: Router ,  private formBuilder: FormBuilder , private service: RegisterationService , private SpinnerService: NgxSpinnerService) {
   this.model = new RegisterationModel(' ', ' ' , ' ');
   }
 
@@ -29,12 +31,15 @@ export class RegisterationComponent implements OnInit {
     this.alreadyExist = false;
     this.registerationForm = this.formBuilder.group({
       email: ['' , Validators.required],
+      password: [' ' , Validators.required],
+      username: [' ' , Validators.required],
   });
 }
     onRegisterButtonClicked(): void {
     if (this.registerationForm.invalid) {
       return;
     }
+    this.SpinnerService.show();
     const email = this.registerationForm.get('email').value;
     const username = this.registerationForm.get('username').value;
     const password = this.registerationForm.get('password').value;
@@ -42,7 +47,11 @@ export class RegisterationComponent implements OnInit {
     this.model.setPassword(password);
     this.model.setUserName(username);
     this.service.insertUser(this.model).subscribe(data => {
-
+      this.SpinnerService.hide();
+      if (data) {
+      } else {
+        this.alreadyExist = true;
+      }
     });
   }
 }
