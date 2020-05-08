@@ -9,11 +9,13 @@ import { RegisterationComponent } from './registeration/registeration.component'
 import { LoginComponent } from './login/login.component';
 import {NgxSpinnerModule} from 'ngx-spinner';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { QuizscreenComponent } from './quizscreen/quizscreen.component';
 @NgModule({
   declarations: [
     AppComponent,
     RegisterationComponent,
-    LoginComponent
+    LoginComponent,
+    QuizscreenComponent
   ],
   imports: [
     BrowserModule,
