@@ -17,6 +17,8 @@ export class RegisterationComponent implements OnInit {
   model: RegisterationModel;
   registerationForm = new FormGroup({
     email : new FormControl(' ' , [ Validators.required , Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$')]),
+    username: new FormControl(' ', [Validators.required]),
+    password: new FormControl(' ', [Validators.required])
   });
 
   get email() {
@@ -31,8 +33,8 @@ export class RegisterationComponent implements OnInit {
     this.alreadyExist = false;
     this.registerationForm = this.formBuilder.group({
       email: ['' , Validators.required],
-      password: [' ' , Validators.required],
       username: [' ' , Validators.required],
+      password:['',Validators.required]
   });
 }
     onRegisterButtonClicked(): void {
