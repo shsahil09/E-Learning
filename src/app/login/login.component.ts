@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
   providers: [LoginService]
 })
 export class LoginComponent implements OnInit {
+  enterAllFields = false;
   model: Model;
   notExist = false;
   loginForm = new FormGroup({
@@ -35,6 +36,7 @@ export class LoginComponent implements OnInit {
   }
   onLoginButtonClicked(): void {
     if (this.loginForm.invalid) {
+      this.enterAllFields = true;
       return;
     }
     this.spinner.show();

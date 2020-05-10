@@ -14,6 +14,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 })
 export class RegisterationComponent implements OnInit {
   alreadyExist = false;
+  enterAllFields = false;
   model: RegisterationModel;
   registerationForm = new FormGroup({
     email : new FormControl(' ' , [ Validators.required , Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$')]),
@@ -34,11 +35,12 @@ export class RegisterationComponent implements OnInit {
     this.registerationForm = this.formBuilder.group({
       email: ['' , Validators.required],
       username: [' ' , Validators.required],
-      password:['',Validators.required]
+      password: ['', Validators.required]
   });
 }
     onRegisterButtonClicked(): void {
     if (this.registerationForm.invalid) {
+      this.enterAllFields = true;
       return;
     }
     this.SpinnerService.show();
