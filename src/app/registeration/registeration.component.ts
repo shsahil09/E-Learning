@@ -53,6 +53,7 @@ export class RegisterationComponent implements OnInit {
     this.service.insertUser(this.model).subscribe(data => {
       this.SpinnerService.hide();
       if (data) {
+        this.router.navigate(['/intro']);
       } else {
         this.alreadyExist = true;
       }
