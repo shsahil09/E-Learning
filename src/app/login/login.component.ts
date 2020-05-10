@@ -5,6 +5,7 @@ import { Model } from './model';
 import { LoginService } from './loginservice';
 import { Router } from '@angular/router';
 
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -47,9 +48,12 @@ export class LoginComponent implements OnInit {
     this.loginservice.loginUser(this.model).subscribe(logindata => {
       this.spinner.hide();
       if (logindata) {
-        this.router.navigate(['/quizScreen']);
+        this.router.navigate(['/intro']);
       } else {
         this.notExist = true;
+        setTimeout(() => {
+          this.router.navigate(['/registeration']);
+        }, 2500);
       }
     });
 

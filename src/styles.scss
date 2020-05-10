@@ -1,0 +1,52 @@
+/* You can add global styles to this file, and also import other style files */
+.mainBody {
+    background-image: url('./assets/backgroundImage.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+mat-card {
+    margin: 0 auto;
+    margin-bottom: 20px;
+    margin-top: 12%;
+    margin-left: 25%;
+    width: 43rem;
+    height: inherit;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative; 
+    background-color: #f7e4a0;
+    background-clip: border-box;
+    border: 1px solid rgb(243, 183, 7);
+    border-radius: .25rem;
+    font-weight: 500;
+  }
+  mat-card-actions {
+    margin-left: 269px;
+    margin-right: -269px;
+    padding: 8px 0;
+  }
+  mat-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+  }
+  
+  mat-card-title {
+    margin-left: 90px;
+    text-align: center;
+    font-family: "Monospace", monospace;
+    font-size: 30px !important;
+    font-weight: 900 !important;
+    color: #007aff;
+  }
+  mat-card-subtitle {
+    text-align: center;
+    font-family: "Space Mono", monospace;
+    font-style: italic;
+    font-size: 17.5px !important;
+    font-weight: 900 !important;
+    color: #808080;
+  }
+  
