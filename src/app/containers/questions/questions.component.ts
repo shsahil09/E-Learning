@@ -1,22 +1,22 @@
-import { Component, OnInit, Input, Output } from '@angular/core';
+import { Component, OnInit, Input, Output, OnChanges } from '@angular/core';
 import { QuizQuestion } from 'src/app/model/QuizQuestion';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { QuestionModel } from '../../model/QuestionModel';
 
 @Component({
   selector: 'app-questions',
   templateUrl: './questions.component.html',
   styleUrls: ['./questions.component.scss']
 })
-export class QuestionsComponent implements OnInit {
-
+export class QuestionsComponent implements OnInit,OnChanges {
+  questionModel: QuestionModel;
   @Input() answer: string;
   @Input() formGroup: FormGroup;
   @Output() question: QuizQuestion;
   totalQuestions: number;
   completionTime: number;
   correctAnswersCount = 0;
-
   questionID = 0;
   currentQuestion = 0;
   questionIndex: number;
@@ -31,7 +31,6 @@ export class QuestionsComponent implements OnInit {
   elapsedTime: number;
   elapsedTimes = [];
   blueBorder = '2px solid #007aff';
-
   allQuestions: QuizQuestion[] = [
     {
       questionId: 1,
@@ -42,7 +41,7 @@ export class QuestionsComponent implements OnInit {
         { optionValue: '3', optionText: 'Allow the client to build service.' },
         { optionValue: '4', optionText: 'Give the client part service.' }
       ],
-      answer: '1',
+      answer: ' ',
       explanation: 'a service gets passed to the client during DI',
       selectedOption: ''
     },
@@ -55,7 +54,7 @@ export class QuestionsComponent implements OnInit {
         { optionValue: '3', optionText: 'Software design' },
         { optionValue: '4', optionText: 'All of the above.' },
       ],
-      answer: '4',
+      answer: ' ',
       explanation: 'DI simplifies both programming and testing as well as being a popular design pattern',
       selectedOption: ''
     },
@@ -68,7 +67,7 @@ export class QuestionsComponent implements OnInit {
         { optionValue: '3', optionText: 'Mark dependency as @Injectable().' },
         { optionValue: '4', optionText: 'Declare an object.' }
       ],
-      answer: '3',
+      answer: ' ',
       explanation: 'the first step is marking the class as @Injectable()',
       selectedOption: ''
     },
@@ -81,7 +80,7 @@ export class QuestionsComponent implements OnInit {
         { optionValue: '3', optionText: 'function' },
         { optionValue: '4', optionText: 'NgModule' },
       ],
-      answer: '2',
+      answer: ' ',
       explanation: 'object instantiations are taken care of by the constructor in Angular',
       selectedOption: ''
     }
@@ -90,11 +89,17 @@ export class QuestionsComponent implements OnInit {
   constructor(private route: ActivatedRoute, private router: Router) {
     this.route.paramMap.subscribe(params => {
       this.setQuestionID(+params.get('questionId'));  // get the question ID and store it
+      this.questionModel = new QuestionModel(0 ,  '');
+      this.questionModel.setQuestionId(+params.get('questionId'));
       this.question = this.getQuestion;
     });
   }
 
+  ngOnChanges() {
+
+  }
   ngOnInit() {
+    
     this.question = this.getQuestion;
     this.totalQuestions = this.allQuestions.length;
     this.timeLeft = this.timePerQuestion;
@@ -105,9 +110,7 @@ export class QuestionsComponent implements OnInit {
   displayNextQuestion() {
     this.resetTimer();
     this.increaseProgressValue();
-
     this.questionIndex = this.questionID++;
-
     if (typeof document.getElementById('question') !== 'undefined' && this.getQuestionID() <= this.totalQuestions) {
       document.getElementById('question').innerHTML = this.allQuestions[this.questionIndex]['questionText'];
       document.getElementById('question').style.border = this.blueBorder;
@@ -115,30 +118,12 @@ export class QuestionsComponent implements OnInit {
       this.navigateToResults();
     }
   }
-
-  /* displayPreviousQuestion() {
-    this.resetTimer();
-    this.decreaseProgressValue();
-
-    this.questionIndex = this.questionID--;
-
-    if (typeof document.getElementById('question') !== 'undefined' && this.getQuestionID() <= this.totalQuestions) {
-      document.getElementById('question').innerHTML = this.allQuestions[this.questionIndex]['questionText'];
-      document.getElementById('question').style.border = this.blueBorder;
-    } else {
-      this.navigateToResults();
-    }
-  } */
 
   navigateToNextQuestion(): void {
     this.router.navigate(['/question', this.getQuestionID() + 1]);
     this.displayNextQuestion();
   }
 
-  /* navigateToPreviousQuestion(): void {
-    this.router.navigate(['/question', this.getQuestionID() - 1]);
-    this.displayPreviousQuestion();
-  } */
 
   navigateToResults(): void {
     this.router.navigate(['/results'], { state:
@@ -151,8 +136,7 @@ export class QuestionsComponent implements OnInit {
     });
   }
 
-  // checks whether the question is valid and is answered correctly
-  checkIfAnsweredCorrectly() {
+   checkIfAnsweredCorrectly() {
     if (this.isThereAnotherQuestion() && this.isCorrectAnswer()) {
       this.incrementCorrectAnswersCount();
       this.correctAnswer = true;

@@ -1,11 +1,13 @@
 import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { QuizQuestion } from '../model/QuizQuestion';
-
+import { QuizService } from '../containers/questions/service/QuizService';
+import { QuestionModel } from '../model/QuestionModel';
 @Component({
   selector: 'app-quizscreen',
   templateUrl: './quizscreen.component.html',
-  styleUrls: ['./quizscreen.component.scss']
+  styleUrls: ['./quizscreen.component.scss'],
+  providers: [QuizService]
 })
 export class QuizscreenComponent implements OnInit {
   @Output() answer = new EventEmitter<string>();
@@ -13,14 +15,16 @@ export class QuizscreenComponent implements OnInit {
   @Input() question: QuizQuestion;
   option = '';
   grayBorder = '2px solid #979797';
-  constructor() { }
-
+  constructor(private service: QuizService) {
+  }
   ngOnInit(): void {
   }
 
   radioChange(answer: string) {
     this.question.selectedOption = answer;
-    this.answer.emit(answer);
+    this.service.checkCorrectAnswer(this.question.selectedOption , this.question.questionId).subscribe(data => {
+     this.question.answer = data.toString();
+    });
     this.displayExplanation();
   }
 
