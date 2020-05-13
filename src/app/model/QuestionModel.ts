@@ -1,7 +1,7 @@
 export class QuestionModel {
     private questionId: number;
     private selectedOption: string;
-
+    
     constructor(questionId: number , selectedOption: string) {
         this.questionId = questionId;
         this.selectedOption = selectedOption;
@@ -23,3 +23,9 @@ export class QuestionModel {
     }
 
 }
+
+export interface QModel {
+     questionID: string;
+     answer: string;
+}
+

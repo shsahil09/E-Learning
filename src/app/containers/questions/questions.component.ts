@@ -3,14 +3,19 @@ import { QuizQuestion } from 'src/app/model/QuizQuestion';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { QuestionModel } from '../../model/QuestionModel';
+import { QuizService } from './service/QuizService';
+
+
 
 @Component({
   selector: 'app-questions',
   templateUrl: './questions.component.html',
-  styleUrls: ['./questions.component.scss']
+  styleUrls: ['./questions.component.scss'],
+  providers: [QuizService]
 })
 export class QuestionsComponent implements OnInit,OnChanges {
   questionModel: QuestionModel;
+  nextClicked = false;
   @Input() answer: string;
   @Input() formGroup: FormGroup;
   @Output() question: QuizQuestion;
@@ -86,8 +91,9 @@ export class QuestionsComponent implements OnInit,OnChanges {
     }
   ];
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(private route: ActivatedRoute, private router: Router , private service: QuizService) {
     this.route.paramMap.subscribe(params => {
+      this.nextClicked = false;
       this.setQuestionID(+params.get('questionId'));  // get the question ID and store it
       this.questionModel = new QuestionModel(0 ,  '');
       this.questionModel.setQuestionId(+params.get('questionId'));
@@ -99,12 +105,22 @@ export class QuestionsComponent implements OnInit,OnChanges {
 
   }
   ngOnInit() {
-    
     this.question = this.getQuestion;
     this.totalQuestions = this.allQuestions.length;
-    this.timeLeft = this.timePerQuestion;
-    this.progressValue = 100 * (this.currentQuestion + 1) / this.totalQuestions;
-    this.countdown();
+    this.service.getAnswer().subscribe( data => {
+       // tslint:disable-next-line:prefer-for-of
+       for (let i = 0; i < data.length; i++) {
+         // tslint:disable-next-line:prefer-for-of
+         for (let j = 0; j < this.allQuestions.length; j++) {
+           if (Number(data[i].questionID) === this.allQuestions[j].questionId) {
+             this.allQuestions[j].answer = data[i].answer;
+           }
+         }
+       }
+       this.timeLeft = this.timePerQuestion;
+       this.progressValue = 100 * (this.currentQuestion + 1) / this.totalQuestions;
+       this.countdown();
+    });
   }
 
   displayNextQuestion() {
@@ -120,12 +136,14 @@ export class QuestionsComponent implements OnInit,OnChanges {
   }
 
   navigateToNextQuestion(): void {
+    this.nextClicked = true;
     this.router.navigate(['/question', this.getQuestionID() + 1]);
     this.displayNextQuestion();
   }
 
 
   navigateToResults(): void {
+    clearInterval(this.interval);
     this.router.navigate(['/results'], { state:
       {
         totalQuestions: this.totalQuestions,
@@ -151,7 +169,7 @@ export class QuestionsComponent implements OnInit,OnChanges {
         this.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
       }
       this.quizDelay(3000);
-      if (this.getQuestionID() < this.totalQuestions) {
+      if (this.getQuestionID() < this.totalQuestions && !this.nextClicked) {
         this.navigateToNextQuestion();
       } else {
         this.navigateToResults();
@@ -220,11 +238,10 @@ export class QuestionsComponent implements OnInit,OnChanges {
         if (this.timeLeft > 0) {
           this.timeLeft--;
           this.checkIfAnsweredCorrectly();
-
           if (this.correctAnswersCount <= this.totalQuestions) {
             this.calculateTotalElapsedTime(this.elapsedTimes);
           }
-          if (this.timeLeft === 0 && !this.isFinalQuestion()) {
+          if (this.timeLeft === 0 && !this.isFinalQuestion() && !this.nextClicked) {
             this.navigateToNextQuestion();
           }
           if (this.timeLeft === 0 && this.isFinalQuestion()) {

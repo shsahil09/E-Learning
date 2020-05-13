@@ -22,9 +22,7 @@ export class QuizscreenComponent implements OnInit {
 
   radioChange(answer: string) {
     this.question.selectedOption = answer;
-    this.service.checkCorrectAnswer(this.question.selectedOption , this.question.questionId).subscribe(data => {
-     this.question.answer = data.toString();
-    });
+    this.answer.emit(answer);
     this.displayExplanation();
   }
 
