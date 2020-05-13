@@ -1,22 +1,27 @@
-import { Component, OnInit, Input, Output } from '@angular/core';
+import { Component, OnInit, Input, Output, OnChanges } from '@angular/core';
 import { QuizQuestion } from 'src/app/model/QuizQuestion';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { QuestionModel } from '../../model/QuestionModel';
+import { QuizService } from './service/QuizService';
+
+
 
 @Component({
   selector: 'app-questions',
   templateUrl: './questions.component.html',
-  styleUrls: ['./questions.component.scss']
+  styleUrls: ['./questions.component.scss'],
+  providers: [QuizService]
 })
-export class QuestionsComponent implements OnInit {
-
+export class QuestionsComponent implements OnInit,OnChanges {
+  questionModel: QuestionModel;
+  nextClicked = false;
   @Input() answer: string;
   @Input() formGroup: FormGroup;
   @Output() question: QuizQuestion;
   totalQuestions: number;
   completionTime: number;
   correctAnswersCount = 0;
-
   questionID = 0;
   currentQuestion = 0;
   questionIndex: number;
@@ -31,7 +36,6 @@ export class QuestionsComponent implements OnInit {
   elapsedTime: number;
   elapsedTimes = [];
   blueBorder = '2px solid #007aff';
-
   allQuestions: QuizQuestion[] = [
     {
       questionId: 1,
@@ -42,7 +46,7 @@ export class QuestionsComponent implements OnInit {
         { optionValue: '3', optionText: 'Allow the client to build service.' },
         { optionValue: '4', optionText: 'Give the client part service.' }
       ],
-      answer: '1',
+      answer: ' ',
       explanation: 'a service gets passed to the client during DI',
       selectedOption: ''
     },
@@ -55,7 +59,7 @@ export class QuestionsComponent implements OnInit {
         { optionValue: '3', optionText: 'Software design' },
         { optionValue: '4', optionText: 'All of the above.' },
       ],
-      answer: '4',
+      answer: ' ',
       explanation: 'DI simplifies both programming and testing as well as being a popular design pattern',
       selectedOption: ''
     },
@@ -68,7 +72,7 @@ export class QuestionsComponent implements OnInit {
         { optionValue: '3', optionText: 'Mark dependency as @Injectable().' },
         { optionValue: '4', optionText: 'Declare an object.' }
       ],
-      answer: '3',
+      answer: ' ',
       explanation: 'the first step is marking the class as @Injectable()',
       selectedOption: ''
     },
@@ -81,33 +85,48 @@ export class QuestionsComponent implements OnInit {
         { optionValue: '3', optionText: 'function' },
         { optionValue: '4', optionText: 'NgModule' },
       ],
-      answer: '2',
+      answer: ' ',
       explanation: 'object instantiations are taken care of by the constructor in Angular',
       selectedOption: ''
     }
   ];
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(private route: ActivatedRoute, private router: Router , private service: QuizService) {
     this.route.paramMap.subscribe(params => {
+      this.nextClicked = false;
       this.setQuestionID(+params.get('questionId'));  // get the question ID and store it
+      this.questionModel = new QuestionModel(0 ,  '');
+      this.questionModel.setQuestionId(+params.get('questionId'));
       this.question = this.getQuestion;
     });
   }
 
+  ngOnChanges() {
+
+  }
   ngOnInit() {
     this.question = this.getQuestion;
     this.totalQuestions = this.allQuestions.length;
-    this.timeLeft = this.timePerQuestion;
-    this.progressValue = 100 * (this.currentQuestion + 1) / this.totalQuestions;
-    this.countdown();
+    this.service.getAnswer().subscribe( data => {
+       // tslint:disable-next-line:prefer-for-of
+       for (let i = 0; i < data.length; i++) {
+         // tslint:disable-next-line:prefer-for-of
+         for (let j = 0; j < this.allQuestions.length; j++) {
+           if (Number(data[i].questionID) === this.allQuestions[j].questionId) {
+             this.allQuestions[j].answer = data[i].answer;
+           }
+         }
+       }
+       this.timeLeft = this.timePerQuestion;
+       this.progressValue = 100 * (this.currentQuestion + 1) / this.totalQuestions;
+       this.countdown();
+    });
   }
 
   displayNextQuestion() {
     this.resetTimer();
     this.increaseProgressValue();
-
     this.questionIndex = this.questionID++;
-
     if (typeof document.getElementById('question') !== 'undefined' && this.getQuestionID() <= this.totalQuestions) {
       document.getElementById('question').innerHTML = this.allQuestions[this.questionIndex]['questionText'];
       document.getElementById('question').style.border = this.blueBorder;
@@ -116,31 +135,15 @@ export class QuestionsComponent implements OnInit {
     }
   }
 
-  /* displayPreviousQuestion() {
-    this.resetTimer();
-    this.decreaseProgressValue();
-
-    this.questionIndex = this.questionID--;
-
-    if (typeof document.getElementById('question') !== 'undefined' && this.getQuestionID() <= this.totalQuestions) {
-      document.getElementById('question').innerHTML = this.allQuestions[this.questionIndex]['questionText'];
-      document.getElementById('question').style.border = this.blueBorder;
-    } else {
-      this.navigateToResults();
-    }
-  } */
-
   navigateToNextQuestion(): void {
+    this.nextClicked = true;
     this.router.navigate(['/question', this.getQuestionID() + 1]);
     this.displayNextQuestion();
   }
 
-  /* navigateToPreviousQuestion(): void {
-    this.router.navigate(['/question', this.getQuestionID() - 1]);
-    this.displayPreviousQuestion();
-  } */
 
   navigateToResults(): void {
+    clearInterval(this.interval);
     this.router.navigate(['/results'], { state:
       {
         totalQuestions: this.totalQuestions,
@@ -151,8 +154,7 @@ export class QuestionsComponent implements OnInit {
     });
   }
 
-  // checks whether the question is valid and is answered correctly
-  checkIfAnsweredCorrectly() {
+   checkIfAnsweredCorrectly() {
     if (this.isThereAnotherQuestion() && this.isCorrectAnswer()) {
       this.incrementCorrectAnswersCount();
       this.correctAnswer = true;
@@ -167,7 +169,7 @@ export class QuestionsComponent implements OnInit {
         this.completionTime = this.calculateTotalElapsedTime(this.elapsedTimes);
       }
       this.quizDelay(3000);
-      if (this.getQuestionID() < this.totalQuestions) {
+      if (this.getQuestionID() < this.totalQuestions && !this.nextClicked) {
         this.navigateToNextQuestion();
       } else {
         this.navigateToResults();
@@ -236,11 +238,10 @@ export class QuestionsComponent implements OnInit {
         if (this.timeLeft > 0) {
           this.timeLeft--;
           this.checkIfAnsweredCorrectly();
-
           if (this.correctAnswersCount <= this.totalQuestions) {
             this.calculateTotalElapsedTime(this.elapsedTimes);
           }
-          if (this.timeLeft === 0 && !this.isFinalQuestion()) {
+          if (this.timeLeft === 0 && !this.isFinalQuestion() && !this.nextClicked) {
             this.navigateToNextQuestion();
           }
           if (this.timeLeft === 0 && this.isFinalQuestion()) {

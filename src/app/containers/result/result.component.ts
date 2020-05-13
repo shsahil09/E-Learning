@@ -33,5 +33,8 @@ export class ResultComponent implements OnInit {
     this.elapsedSeconds = this.completionTime % 60;
     this.percentage = Math.round(100 * this.correctAnswersCount / this.totalQuestions);
   }
+  restartQuiz(): void {
+    this.router.navigate(['/intro']);
+  }
 
 }
