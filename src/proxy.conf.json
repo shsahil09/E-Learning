@@ -1,0 +1,7 @@
+{
+    "/api/*": {
+        "target": "https://web-chat.global.assistant.watson.appdomain.cloud/loadWatsonAssistantChat.js",
+        "secure": false,
+        "logLevel": "debug"
+    }
+}
